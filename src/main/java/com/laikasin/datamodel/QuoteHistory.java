@@ -169,7 +169,12 @@ public class QuoteHistory {
     }
 
     public HistoricalQuote getLastPriceBar(int dayDiff) {
-        return historicalQuotes.get(historicalQuotes.size() - dayDiff - 1);
+        try {
+            return historicalQuotes.get(historicalQuotes.size() - dayDiff - 1);
+        } catch (IndexOutOfBoundsException ex) {
+            return new HistoricalQuote(stockName, null, new BigDecimal("0.0"), new BigDecimal("0.0"),
+                    new BigDecimal("0.0"), new BigDecimal("0.0"), new BigDecimal("0.0"), 0L);
+        }
     }
 
     public HistoricalQuote getFirstPriceBar() {

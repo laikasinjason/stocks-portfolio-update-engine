@@ -3,6 +3,7 @@ package com.laikasin.indicator;
 import com.laikasin.datamodel.QuoteHistory;
 import yahoofinance.histquotes.HistoricalQuote;
 
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -23,22 +24,27 @@ public class EMA extends Indicator {
     @Override
     // day diff means prev days, 1 means last day
     public Double calculate(int dayDiff) {
-        List<HistoricalQuote> priceBars = qh.getHistoricalQuotes();
-        int lastBar = priceBars.size() - 1 - dayDiff;
-        int firstBar = lastBar - 2 * length + 1 - dayDiff;
-        Double ema = priceBars.get(firstBar).getClose().doubleValue();
+        try {
+            List<HistoricalQuote> priceBars = qh.getHistoricalQuotes();
+            int lastBar = priceBars.size() - 1 - dayDiff;
+            int firstBar = lastBar - 2 * length + 1 - dayDiff;
+            Double ema = priceBars.get(firstBar).getClose().doubleValue();
 
-        for (int bar = firstBar; bar <= lastBar; bar++) {
-            BigDecimal barClose = priceBars.get(bar).getClose();
-            if (barClose!=null) {
-                // Just skipping without throwing error at the moment
-                ema += (barClose.doubleValue() - ema) * multiplier;
+            for (int bar = firstBar; bar <= lastBar; bar++) {
+                BigDecimal barClose = priceBars.get(bar).getClose();
+                if (barClose != null) {
+                    // Just skipping without throwing error at the moment
+                    ema += (barClose.doubleValue() - ema) * multiplier;
+                }
             }
+
+            value = ema;
+
+            return value;
+        } catch ( IndexOutOfBoundsException e) {
+            log.error("Error while calculating rsi {}  - {}", this.getClass().getSimpleName(), e);
+            return 0.0;
         }
-
-        value = ema;
-
-        return value;
     }
 }
 

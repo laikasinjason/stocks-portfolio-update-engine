@@ -51,7 +51,7 @@ public class StockWebPageYahooAPIParser {
 
             return price;
         } catch (IOException e) {
-            log.error("Error while using yahoo API: {}", e.getStackTrace());
+            log.error("Error while using yahoo API: {}", e.getMessage());
             return null;
         }
     }

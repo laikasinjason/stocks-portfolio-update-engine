@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import yahoofinance.histquotes.HistoricalQuote;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -159,15 +160,30 @@ public class ExcelUpdater {
                     stockPerformance.setStockName(currentRow.getCell(9).getStringCellValue());
 
                     RSI rsiIndicator = new RSI(parserMap.get(stockCode).getQuoteHistory(), 14, stockCode);
-                    Double rsiValue = rsiIndicator.calculate(0);
+                    Double rsiValue = null;
+                    try {
+                        rsiValue = rsiIndicator.calculate(0);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        rsiValue = 50.0;
+                    }
                     stockPerformance.setRsi(rsiValue);
 
                     EMA emaIndicator = new EMA(parserMap.get(stockCode).getQuoteHistory(), 12);
-                    Double emaValue = emaIndicator.calculate(0);
+                    Double emaValue = null;
+                    try {
+                        emaValue = emaIndicator.calculate(0);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        emaValue = 0.0;
+                    }
                     stockPerformance.setEma10(emaValue);
 
                     // getting the T-1 price
-                    stockPerformance.setLastDayPrice(parserMap.get(stockCode).getQuoteHistory().getLastPriceBar(1).getClose().doubleValue());
+                    HistoricalQuote priceBar = parserMap.get(stockCode).getQuoteHistory().getLastPriceBar(1);
+                    if (priceBar != null) {
+                        stockPerformance.setLastDayPrice(priceBar.getClose().doubleValue());
+                    }else{
+                        stockPerformance.setLastDayPrice(null);
+                    }
                     stockPerformance.setLastDayEma10(emaIndicator.calculate(1));
                     log.info("Stocks [{}] : RSI = {} , EMA = {}", stockCode, rsiValue, emaValue);
 

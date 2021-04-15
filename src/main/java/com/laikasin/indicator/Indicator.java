@@ -5,11 +5,16 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.laikasin.datamodel.QuoteHistory;
+import com.laikasin.parser.StockWebPageYahooAPIParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for all classes implementing technical indicators.
  */
 public abstract class Indicator {
+    protected static Logger log = LoggerFactory.getLogger(Indicator.class);
+
     protected double value;
     protected QuoteHistory qh;
     private final List<IndicatorValue> history;
